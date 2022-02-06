@@ -1,3 +1,16 @@
+/*********************************************************************************
+*  WEB322 – Assignment 02
+*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
+*  (including 3rd party web sites) or distributed to other students.
+* 
+*  Name: Mitchell Rose Student ID: 018733147 Date: Feb.5,2022
+*
+*  Online (Heroku) URL: https://morning-citadel-59888.herokuapp.com/about
+*
+*  GitHub Repository URL: https://github.com/MitchRose976/web322-app
+*
+********************************************************************************/ 
+
 const HTTP_PORT = process.env.PORT || 8080;
 const express = require("express");
 const path = require("path");
