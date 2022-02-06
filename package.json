@@ -4,12 +4,15 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "watch": "nodemon ./server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "author": "Mitchell Rose",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.2"
+    "axios": "^0.25.0",
+    "express": "^4.17.2",
+    "nodemon": "^2.0.15"
   }
 }

@@ -1,0 +1,21 @@
+/* Style 404 Error Page */
+.invalid-route-message {
+    margin: 4rem auto;
+    width: 50%;
+    height: 80rem;
+    display: flex;
+    align-items: center;
+    /* justify-content: center; */
+    flex-direction: column;
+}
+
+.invalid-route-message img {
+    width: 80%;
+    height: 30rem;   
+}
+
+@media (max-width: 768px) {
+    .invalid-route-message {
+        width: 80%;
+    }
+}
