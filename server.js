@@ -8,7 +8,7 @@
 *
 *  Heroku App URL: https://morning-citadel-59888.herokuapp.com/
 * 
-*  GitHub Repository URL: ______________________________________________________
+*  GitHub Repository URL: https://github.com/MitchRose976/web322-app.git
 *
 ********************************************************************************/ 
 

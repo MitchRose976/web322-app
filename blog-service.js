@@ -37,12 +37,13 @@ const getAllPosts = () => {
 
 const getPublishedPosts = () => {
     let publishedPosts = [];
+    return new Promise((resolve, reject) => {
     for (let i = 0; i < posts.length; i++) {
         if (posts[i].published) {
             publishedPosts.push(posts[i]);
         }
     }
-    return new Promise((resolve, reject) => {
+    
         publishedPosts && publishedPosts.length > 0 ? resolve(publishedPosts) : reject('No results returned'); 
     })
 };
