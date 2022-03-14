@@ -70,13 +70,17 @@ const getPostsByMinDate = (minDateStr) => {
 }
 
 const getPostsById = (id) => {
-    return new Promise((resolve,reject) => {
-        let postFound = posts.filter(post => post.id == id);
-        if (posts.length == 0) {
-            reject('no results returned');
-        }
-        resolve(postFound);
-    })
+    // return new Promise((resolve,reject) => {
+    //     let postFound = posts.filter(post => post.id == id);
+    //     if (posts.length == 0) {
+    //         reject('no results returned');
+    //     }
+    //     resolve(postFound);
+    // })
+    var post = posts.find(element => element.id == id);
+    return new Promise((resolve, reject) => {
+        post == null ? reject('No results returned') : resolve(post);
+    });
 }
 
 const getCategories = () => {

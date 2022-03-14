@@ -136,19 +136,19 @@ app.get("/posts", (req, res) => {
         blogData.getPostsByCategory(req.query.category).then((data) => {
             res.render("posts", {posts:data});
         }).catch((err) => {
-            res.render("posts", {message: "no results"});
+            res.render({message: "no results"});
         })
     } else if (req.query.minDate) {
         blogData.getPostsByMinDate(req.query.minDate).then((data) => {
             res.render("posts", {posts:data});
         }).catch((err) => {
-            res.render("posts", {message: "no results"});
+            res.render({message: "no results"});
         })
     } else {
         blogData.getAllPosts().then((data) => {
             res.render("posts", {posts:data});
         }).catch((err) => {
-            res.render("posts", {message: "no results"});
+            res.render({message: "no results"});
         })
     }  
 });
@@ -170,17 +170,9 @@ app.get("/posts/:category", (req, res) => {
 })
 
 app.get("/posts/add", (req, res) => {
-    var info = {
-        name: "Graduation", 
-        year: "2015",
-        artist: "Kanye West",
-        visible: true
-    }
-    
-    res.render('addPost', {
-        data: info,
-        layout: false
-    });
+    //res.render(path.join(__dirname, "./views/addPost.hbs"));
+    //res.render("about");
+    res.sendFile(path.join(__dirname, "./views/addPost.hbs"));
 })
 
 app.get("/categories", (req, res) => {
@@ -254,7 +246,7 @@ app.get('/blog/:id', async (req, res) => {
     }
     try{
         // Obtain the post by "id"
-        viewData.post = await blogData.getPostById(req.params.id);
+        viewData.post = await blogData.getPostsById(req.params.id);
     }catch(err){
         viewData.message = "no results"; 
     }
