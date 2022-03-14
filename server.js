@@ -131,6 +131,8 @@ app.get('/blog', async (req, res) => {
     res.render("blog", {data: viewData})
 });
 
+
+// POSTS
 app.get("/posts", (req, res) => {
     if (req.query.category) {
         blogData.getPostsByCategory(req.query.category).then((data) => {
@@ -153,6 +155,10 @@ app.get("/posts", (req, res) => {
     }  
 });
 
+app.get("/posts/add", (req, res) => {
+    res.render(path.join(__dirname, "./views/addPost.hbs"));
+})
+
 app.get("/posts/:value", (req, res) => {
     blogData.getPostsById(req.params.value).then((data) => {
         return res.json({data});
@@ -169,11 +175,7 @@ app.get("/posts/:category", (req, res) => {
     })
 })
 
-app.get("/posts/add", (req, res) => {
-    //res.render(path.join(__dirname, "./views/addPost.hbs"));
-    //res.render("about");
-    res.sendFile(path.join(__dirname, "./views/addPost.hbs"));
-})
+
 
 app.get("/categories", (req, res) => {
     blogData.getCategories().then((data) => {
@@ -181,11 +183,6 @@ app.get("/categories", (req, res) => {
     }).catch((err) => {
         res.render("categories", {message: "no results"})
     })
-})
-
-app.get("*", (req, res) => {
-    //res.sendFile(path.join(__dirname, "./views/error.html"));
-    res.render("error");
 })
 
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
@@ -261,6 +258,11 @@ app.get('/blog/:id', async (req, res) => {
     // render the "blog" view with all of the data (viewData)
     res.render("blog", {data: viewData})
 });
+
+app.get("*", (req, res) => {
+    //res.sendFile(path.join(__dirname, "./views/error.html"));
+    res.render("error");
+})
 
 
 // setup http server to listen on HTTP_PORT
