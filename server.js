@@ -20,7 +20,35 @@ const blogData = require("./blog-service");
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
+const exphbs = require('express-handlebars');
+const stripJs = require('strip-js');
 const app = express();
+
+// Handlebars
+app.engine('.hbs', exphbs.engine({ 
+    extname: '.hbs', 
+    defaultLayout: 'main',
+    helpers: {
+        navLink: function(url, options){
+            return '<li' + 
+                ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
+                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+        equal: function (lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        },
+        safeHTML: function(context){
+            return stripJs(context);
+        }
+    }
+}));
+app.set('view engine', '.hbs');
 
 // Cloudinary config
 cloudinary.config({
@@ -37,42 +65,90 @@ const upload = multer();
 // Add middleware
 app.use(express.static('public')); 
 
+// Nav bar fix
+app.use(function(req,res,next){
+    let route = req.path.substring(1);
+    app.locals.activeRoute = (route == "/") ? "/" : "/" + route.replace(/\/(.*)/, "");
+    app.locals.viewingCategory = req.query.category;
+    next();
+});
+
 // setup a 'route' to listen on the default url path
 app.get("/", (req, res) => {
     //res.send(`Express http server listening on ${HTTP_PORT}`);
-    res.redirect('/about');
+    res.redirect('/blog');
 });
 
 app.get("/about", (req, res) => {
-    res.sendFile(path.join(__dirname, './views/about.html'));
+    
+    var info = {
+        name: "Graduation", 
+        year: "2015",
+        artist: "Kanye West",
+        visible: true
+    }
+    
+    res.render('about', {
+        data: info,
+        layout: 'main.hbs'
+    });
 });
 
-app.get("/blog", (req, res) => {
-    blogData.getPublishedPosts().then((data) => {
-        return res.json({data});
-    }).catch((err) => {
-        return {"message": err.message};
-    })
-})
+app.get('/blog', async (req, res) => {
+
+    // Declare an object to store properties for the view
+    let viewData = {};
+    try{
+        // declare empty array to hold "post" objects
+        let posts = [];
+        // if there's a "category" query, filter the returned posts by category
+        if(req.query.category){
+            // Obtain the published "posts" by category
+            posts = await blogData.getPublishedPostsByCategory(req.query.category);
+        }else{
+            // Obtain the published "posts"
+            posts = await blogData.getPublishedPosts();
+        }
+        // sort the published posts by postDate
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+        // get the latest post from the front of the list (element 0)
+        let post = posts[0]; 
+        // store the "posts" and "post" data in the viewData object (to be passed to the view)
+        viewData.posts = posts;
+        viewData.post = post;
+    }catch(err){
+        viewData.message = "no results";
+    }
+    try{
+        // Obtain the full list of "categories"
+        let categories = await blogData.getCategories();
+        // store the "categories" data in the viewData object (to be passed to the view)
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+    // render the "blog" view with all of the data (viewData)
+    res.render("blog", {data: viewData})
+});
 
 app.get("/posts", (req, res) => {
     if (req.query.category) {
         blogData.getPostsByCategory(req.query.category).then((data) => {
-            return res.json({data});
+            res.render("posts", {posts:data});
         }).catch((err) => {
-            return {"message": err.message};
+            res.render("posts", {message: "no results"});
         })
     } else if (req.query.minDate) {
         blogData.getPostsByMinDate(req.query.minDate).then((data) => {
-            return res.json({data});
+            res.render("posts", {posts:data});
         }).catch((err) => {
-            return {"message": err.message};
+            res.render("posts", {message: "no results"});
         })
     } else {
         blogData.getAllPosts().then((data) => {
-            return res.json({data});
+            res.render("posts", {posts:data});
         }).catch((err) => {
-            return {"message": err.message};
+            res.render("posts", {message: "no results"});
         })
     }  
 });
@@ -94,19 +170,30 @@ app.get("/posts/:category", (req, res) => {
 })
 
 app.get("/posts/add", (req, res) => {
-    res.sendFile(path.join(__dirname, "./views/addPost.html"));
+    var info = {
+        name: "Graduation", 
+        year: "2015",
+        artist: "Kanye West",
+        visible: true
+    }
+    
+    res.render('addPost', {
+        data: info,
+        layout: false
+    });
 })
 
 app.get("/categories", (req, res) => {
     blogData.getCategories().then((data) => {
-        return res.json({data});
+        res.render("categories", {categories:data});
     }).catch((err) => {
-        return {"message": err.message};
+        res.render("categories", {message: "no results"})
     })
 })
 
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "./views/error.html"));
+    //res.sendFile(path.join(__dirname, "./views/error.html"));
+    res.render("error");
 })
 
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
@@ -142,6 +229,46 @@ app.post("/posts/add", upload.single("featureImage"), (req, res) => {
     });
         
 })
+
+app.get('/blog/:id', async (req, res) => {
+
+    // Declare an object to store properties for the view
+    let viewData = {};
+    try{
+        // declare empty array to hold "post" objects
+        let posts = [];
+        // if there's a "category" query, filter the returned posts by category
+        if(req.query.category){
+            // Obtain the published "posts" by category
+            posts = await blogData.getPublishedPostsByCategory(req.query.category);
+        }else{
+            // Obtain the published "posts"
+            posts = await blogData.getPublishedPosts();
+        }
+        // sort the published posts by postDate
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+        // store the "posts" and "post" data in the viewData object (to be passed to the view)
+        viewData.posts = posts;
+    }catch(err){
+        viewData.message = "no results";
+    }
+    try{
+        // Obtain the post by "id"
+        viewData.post = await blogData.getPostById(req.params.id);
+    }catch(err){
+        viewData.message = "no results"; 
+    }
+    try{
+        // Obtain the full list of "categories"
+        let categories = await blogData.getCategories();
+        // store the "categories" data in the viewData object (to be passed to the view)
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+    // render the "blog" view with all of the data (viewData)
+    res.render("blog", {data: viewData})
+});
 
 
 // setup http server to listen on HTTP_PORT

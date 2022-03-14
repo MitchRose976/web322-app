@@ -89,6 +89,7 @@ const addPost = (postData) => {
     postData.published == undefined ? postData.published = false : postData.published = true;
             postData.published = false;
     postData.id = posts.length + 1;
+    postData.postDate = "2022-03-12";
     posts.push(postData);
     
     return new Promise((resolve, reject) => {
@@ -102,6 +103,19 @@ const addPost = (postData) => {
     })
 };
 
+const getPublishedPostsByCategory = (category) => {
+    let publishedPosts = [];
+    return new Promise((resolve, reject) => {
+    for (let i = 0; i < posts.length; i++) {
+        if (posts[i].published && posts[i].category == category) {
+            publishedPosts.push(posts[i]);
+        }
+    }
+    
+        publishedPosts && publishedPosts.length > 0 ? resolve(publishedPosts) : reject('No results returned'); 
+    })
+}
+
 module.exports = {
     initialize, 
     getAllPosts, 
@@ -110,7 +124,8 @@ module.exports = {
     addPost,
     getPostsByCategory,
     getPostsByMinDate,
-    getPostsById
+    getPostsById,
+    getPublishedPostsByCategory
 }
 
 

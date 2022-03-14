@@ -10,7 +10,7 @@
       <link rel="stylesheet" href="https://bootswatch.com/3/darkly/bootstrap.min.css" />
       <link rel="stylesheet" href="/css/main.css">
       
-      <title>About</title>
+      <title>Mitchell Roses' Blog</title>
   </head>
   <body>
     <nav class="navbar navbar-default navbar-fixed-top">
@@ -29,33 +29,20 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-            <li><a href="/blog">Blog</a></li>
-            <li class="active"><a href="/about">About</a></li>
+            {{#navLink "/blog"}}Blog{{/navLink}}
+            {{#navLink "/about"}}About{{/navLink}}
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="/posts">Posts</a></li>
-            <li><a href="/categories">Categories</a></li>
-            <li><a href="/posts/add">Add Post</a></li>            
+            {{#navLink "/posts"}}Posts{{/navLink}}
+            {{#navLink "/categories"}}Categories{{/navLink}}
+            {{#navLink "/posts/add"}}Add Post{{/navLink}}            
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
     <div class="container" style="padding-top:60px">
-      <div class="row">
-        <section class="main col-md-9">
-          <article>
-          <h2>About</h2>
-          <p>My name is Mitch and I am currently studying Computer Programming and Analysis at Seneca College.</p>
-          <p>My passion and interest for coding started at the end of 2020. I found myself in a position where I had lost my job because of COVID and needed to find another path. I spoke to some of my early childhood friends about life and wanted to know what they do and they told me they code. To be honest, I had no idea what that even was at the time. I did some research and became very interested. What excited me the most was the many paths you can take and the options you have. You can build things and learn something new every day to become better at your craft. What's better than that? </p>
-          <p>The best thing about coding is that you can clearly see your progression through your work. Every time I finish a project, I add a new skill to my arsenal. Then the next project I can fine tune that skill and leverage it to use with another new skill I want to learn. Every time I look back at old projects or work that I have done, I can see how far I have come and thats what keeps me motivated.</p>
-          <p>My goal is to find a company where I can work on projects I am invested in and passionate about. I want to contribute to projects that are exciting and work with people who share the same passion for learning and coding as I do. Eventually I want to be a senior developer leading my own team and my own projects. By leading my own team, it would give me the opportunity to mentor and teach younger programmers coming up so they can level up their skills and feel a connection to their work.</p>
-          </article>
-        </section>
-        <aside class="col-md-3">
-          <h2>Coming Soon</h2>
-          <p>Stay tuned for future updates...</p>
-        </aside>
-      </div>
+      {{!-- {{{body}}} --}}
+      {{#safeHTML body }}{{/safeHTML}}
     </div>
 
     <!-- Latest compiled and minified jQuery 3.6.0 JavaScript -->
