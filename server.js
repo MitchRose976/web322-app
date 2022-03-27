@@ -45,7 +45,13 @@ app.engine('.hbs', exphbs.engine({
         },
         safeHTML: function(context){
             return stripJs(context);
-        }
+        },
+        formatDate: function(dateObj){
+            let year = dateObj.getFullYear();
+            let month = (dateObj.getMonth() + 1).toString();
+            let day = dateObj.getDate().toString();
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
+        } 
     }
 }));
 app.set('view engine', '.hbs');
@@ -72,6 +78,8 @@ app.use(function(req,res,next){
     app.locals.viewingCategory = req.query.category;
     next();
 });
+
+app.use(express.urlencoded({extended: true}));
 
 // setup a 'route' to listen on the default url path
 app.get("/", (req, res) => {
@@ -136,19 +144,31 @@ app.get('/blog', async (req, res) => {
 app.get("/posts", (req, res) => {
     if (req.query.category) {
         blogData.getPostsByCategory(req.query.category).then((data) => {
-            res.render("posts", {posts:data});
+            if (data.length > 0) {
+                res.render("posts", {posts:data});
+            } else {
+                res.render("posts", {message: "no results"});
+            }
         }).catch((err) => {
             res.render({message: "no results"});
         })
     } else if (req.query.minDate) {
         blogData.getPostsByMinDate(req.query.minDate).then((data) => {
-            res.render("posts", {posts:data});
+            if (data.length > 0) {
+                res.render("posts", {posts:data});
+            } else {
+                res.render("posts", {message: "no results"});
+            }
         }).catch((err) => {
             res.render({message: "no results"});
         })
     } else {
         blogData.getAllPosts().then((data) => {
-            res.render("posts", {posts:data});
+            if (data.length > 0) {
+                res.render("posts", {posts:data});
+            } else {
+                res.render("posts", {message: "no results"});
+            }
         }).catch((err) => {
             res.render({message: "no results"});
         })
@@ -156,7 +176,12 @@ app.get("/posts", (req, res) => {
 });
 
 app.get("/posts/add", (req, res) => {
-    res.render(path.join(__dirname, "./views/addPost.hbs"));
+    blogData.getCategories().then((data) => {
+        res.render(path.join(__dirname, "./views/addPost.hbs"), {categories: data});
+    }).catch((err) => {
+        res.render(path.join(__dirname, "./views/addPost.hbs"), {categories: []});
+    })
+    
 })
 
 app.get("/posts/:value", (req, res) => {
@@ -179,7 +204,12 @@ app.get("/posts/:category", (req, res) => {
 
 app.get("/categories", (req, res) => {
     blogData.getCategories().then((data) => {
-        res.render("categories", {categories:data});
+        //res.render("categories", {categories:data});
+        if (data.length > 0) {
+            res.render("categories", {categories:data});
+        } else {
+            res.render("categories", {message: "no results"});
+        }
     }).catch((err) => {
         res.render("categories", {message: "no results"})
     })
@@ -257,6 +287,59 @@ app.get('/blog/:id', async (req, res) => {
     }
     // render the "blog" view with all of the data (viewData)
     res.render("blog", {data: viewData})
+});
+
+app.get('/categories/add', (req, res) => {
+    res.render(path.join(__dirname, "./views/addCategory.hbs"));
+});
+
+app.post('/categories/add', async (req, res) => {
+    let streamUpload = (req) => {
+        return new Promise((resolve, reject) => {
+            let stream = cloudinary.uploader.upload_stream(
+                (error, result) => {
+                if (result) {
+                    resolve(result);
+                } else {
+                    reject(error);
+                }
+            }
+        );
+    
+            streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+    };
+    
+    async function upload(req) {
+        let result = await streamUpload(req);
+        console.log(result);
+        return result;
+    }
+    
+    upload(req).then((uploaded)=>{
+        req.body.featureImage = uploaded.url;
+        // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
+        blogData.addCategory(req.body).then(() => {
+            res.redirect('/categories');
+        });
+        
+    });
+});
+
+app.get('/categories/delete/:id', (req, res) => {
+    blogData.deleteCategoryById(req.params.id).then(() => {
+        res.redirect('/categories');
+    }).catch((err) => {
+        res.status(500).send("Unable to Remove Category / Category not found)");
+    });
+});
+
+app.get('/posts/delete/:id', (req, res) => {
+    blogData.deletePostById(req.params.id).then(() => {
+        res.redirect('/posts');
+    }).catch((err) => {
+        res.status(500).send("Unable to Remove Post / Post not found)");
+    });
 });
 
 app.get("*", (req, res) => {
