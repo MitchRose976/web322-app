@@ -131,21 +131,9 @@ const getCategories = () => {
 const addPost = (postData) => {
   return new Promise((resolve, reject) => {
     postData.published = postData.published ? true : false;
-    postData.body == ""
-      ? (postData.body = null)
-      : (postData.body = postData.body);
-    postData.title == ""
-      ? (postData.title = null)
-      : (postData.title = postData.title);
-    postData.postDate == ""
-      ? (postData.postDate = null)
-      : (postData.postDate = postData.postDate);
-    postData.featureImage == ""
-      ? (postData.featureImage = null)
-      : (postData.featureImage = postData.featureImage);
     for (const key in postData) {
-      if (key == "") {
-        key = null;
+      if (postData[key] == "") {
+        postData[key] = null;
       }
     }
     postData.postDate = new Date();
@@ -179,25 +167,24 @@ const getPublishedPostsByCategory = (category) => {
 
 const addCategory = (categoryData) => {
   //categoryData.published = (categoryData.published) ? true : false;
-  categoryData.body == ""
-    ? (categoryData.body = null)
-    : (categoryData.body = categoryData.body);
   //categoryData.title == "" ? categoryData.title = null : categoryData.title = categoryData.title;
   //categoryData.postDate == "" ? categoryData.postDate = null : categoryData.postDate = categoryData.postDate;
   //categoryData.featureImage == "" ? categoryData.featureImage = null : categoryData.featureImage = categoryData.featureImage;
-  for (const key in categoryData) {
-    if (key == "") {
-      key = null;
+  return new Promise((resolve, reject) => {
+    for (const key in categoryData) {
+      if (categoryData[key] == "") {
+        categoryData[key] = null;
+      }
     }
-  }
-  //categoryData.postDate = new Date();
-  Category.create(categoryData)
-    .then(() => {
-      resolve("successfully added post to DB: ", categoryData);
-    })
-    .catch(() => {
-      reject("unable to create post");
-    });
+    //categoryData.postDate = new Date();
+    Category.create(categoryData)
+      .then(() => {
+        resolve("successfully added post to DB: ", categoryData);
+      })
+      .catch(() => {
+        reject("unable to create post");
+      });
+  });
 };
 
 const deleteCategoryById = (id) => {

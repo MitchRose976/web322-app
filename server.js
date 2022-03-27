@@ -1,10 +1,10 @@
 /*********************************************************************************
-*  WEB322 – Assignment 03
+*  WEB322 – Assignment 05
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part 
 *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Mitchell Rose Student ID: 018733147 Date: March.14, 2022
+*  Name: Mitchell Rose Student ID: 018733147 Date: March.27, 2022
 *
 *  Heroku App URL: https://morning-citadel-59888.herokuapp.com/
 * 
@@ -216,37 +216,39 @@ app.get("/categories", (req, res) => {
 })
 
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
-    let streamUpload = (req) => {
-        return new Promise((resolve, reject) => {
-            let stream = cloudinary.uploader.upload_stream(
-                (error, result) => {
-                if (result) {
-                    resolve(result);
-                } else {
-                    reject(error);
-                }
-                }
-            );
+    // let streamUpload = (req) => {
+    //     return new Promise((resolve, reject) => {
+    //         let stream = cloudinary.uploader.upload_stream(
+    //             (error, result) => {
+    //             if (result) {
+    //                 resolve(result);
+    //             } else {
+    //                 reject(error);
+    //             }
+    //             }
+    //         );
     
-            streamifier.createReadStream(req.file.buffer).pipe(stream);
-        });
-    };
+    //         streamifier.createReadStream(req.file.buffer).pipe(stream);
+    //     });
+    // };
     
-    async function upload(req) {
-        let result = await streamUpload(req);
-        console.log(result);
-        return result;
-    }
+    // async function upload(req) {
+    //     let result = await streamUpload(req);
+    //     console.log(result);
+    //     return result;
+    // }
     
-    upload(req).then((uploaded)=>{
-        req.body.featureImage = uploaded.url;
-        // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
-        blogData.addPost(req.body).then(() => {
-            res.redirect('/posts');
-        });
+    // upload(req).then((uploaded)=>{
+    //     req.body.featureImage = uploaded.url;
+    //     // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
+    //     blogData.addPost(req.body).then(() => {
+    //         res.redirect('/posts');
+    //     });
         
-    });
-        
+    // });
+    blogData.addPost(req.body).then(() => {
+        res.redirect('/posts');
+    })
 })
 
 app.get('/blog/:id', async (req, res) => {
@@ -293,36 +295,9 @@ app.get('/categories/add', (req, res) => {
     res.render(path.join(__dirname, "./views/addCategory.hbs"));
 });
 
-app.post('/categories/add', async (req, res) => {
-    let streamUpload = (req) => {
-        return new Promise((resolve, reject) => {
-            let stream = cloudinary.uploader.upload_stream(
-                (error, result) => {
-                if (result) {
-                    resolve(result);
-                } else {
-                    reject(error);
-                }
-            }
-        );
-    
-            streamifier.createReadStream(req.file.buffer).pipe(stream);
-        });
-    };
-    
-    async function upload(req) {
-        let result = await streamUpload(req);
-        console.log(result);
-        return result;
-    }
-    
-    upload(req).then((uploaded)=>{
-        req.body.featureImage = uploaded.url;
-        // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
-        blogData.addCategory(req.body).then(() => {
-            res.redirect('/categories');
-        });
-        
+app.post('/categories/add', (req, res) => {
+    blogData.addCategory(req.body).then(() => {
+        res.redirect('/categories');
     });
 });
 
