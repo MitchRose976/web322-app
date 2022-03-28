@@ -26,7 +26,7 @@ let Post = sequelize.define("Post", {
 });
 
 let Category = sequelize.define("Category", {
-  body: Sequelize.STRING,
+  category: Sequelize.STRING,
 });
 
 Post.belongsTo(Category, { foreignKey: "category" });
@@ -48,7 +48,7 @@ const getAllPosts = () => {
   return new Promise((resolve, reject) => {
     Post.findAll()
       .then((data) => {
-        resolve("successfully found all posts: ", data);
+        resolve(data);
       })
       .catch(() => {
         reject("no results returned");
@@ -66,7 +66,7 @@ const getPublishedPosts = () => {
       },
     })
       .then((data) => {
-        resolve("successfully found all posts", data);
+        resolve(data);
       })
       .catch(() => {
         resolve("no results returned");
@@ -76,9 +76,13 @@ const getPublishedPosts = () => {
 
 const getPostsByCategory = (category) => {
   return new Promise((resolve, reject) => {
-    Post.findAll({ category: category })
+    Post.findAll({
+        where: {
+            categories: category
+        }
+    })
       .then((data) => {
-        resolve("successfully found all posts: ", data);
+        resolve(data);
       })
       .catch(() => {
         reject("no results returned");
@@ -96,7 +100,7 @@ const getPostsByMinDate = (minDateStr) => {
       },
     })
       .then((data) => {
-        resolve("successfully found all posts", data);
+        resolve(data);
       })
       .catch(() => {
         resolve("no results returned");
@@ -104,23 +108,15 @@ const getPostsByMinDate = (minDateStr) => {
   });
 };
 
-const getPostsById = (id) => {
+const getPostById = (id) => {
   return new Promise((resolve, reject) => {
-    Post.findAll({ id: id })
+    Post.findOne({
+        where: {
+            id: id
+        }
+    })
       .then((data) => {
-        resolve("successfully found all posts matching ID: ", data[0]);
-      })
-      .catch(() => {
-        reject("no results returned");
-      });
-  });
-};
-
-const getCategories = () => {
-  return new Promise((resolve, reject) => {
-    Category.findAll()
-      .then((data) => {
-        resolve("successfully found all posts matching ID: ", data);
+        resolve(data);
       })
       .catch(() => {
         reject("no results returned");
@@ -139,7 +135,7 @@ const addPost = (postData) => {
     postData.postDate = new Date();
     Post.create(postData)
       .then(() => {
-        resolve("successfully added post to DB: ", postData);
+        resolve(postData);
       })
       .catch(() => {
         reject("unable to create post");
@@ -157,13 +153,23 @@ const getPublishedPostsByCategory = (category) => {
       },
     })
       .then((data) => {
-        resolve("successfully found all posts", data);
+        resolve(data);
       })
       .catch(() => {
         resolve("no results returned");
       });
   });
 };
+
+const getCategories = () => {
+    return new Promise((resolve, reject) => {
+      Category.findAll().then((data) => {
+          resolve(data);
+        }).catch(() => {
+          reject("no results returned");
+        });
+    });
+  };
 
 const addCategory = (categoryData) => {
   //categoryData.published = (categoryData.published) ? true : false;
@@ -179,13 +185,15 @@ const addCategory = (categoryData) => {
     //categoryData.postDate = new Date();
     Category.create(categoryData)
       .then(() => {
-        resolve("successfully added post to DB: ", categoryData);
+        resolve(categoryData);
       })
       .catch(() => {
         reject("unable to create post");
       });
   });
 };
+
+
 
 const deleteCategoryById = (id) => {
   return new Promise((resolve, reject) => {
@@ -219,7 +227,7 @@ module.exports = {
   addPost,
   getPostsByCategory,
   getPostsByMinDate,
-  getPostsById,
+  getPostById,
   getPublishedPostsByCategory,
   addCategory,
   deleteCategoryById,

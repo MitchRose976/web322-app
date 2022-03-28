@@ -67,7 +67,6 @@ cloudinary.config({
 // multer variables 
 const upload = multer(); 
 
-
 // Add middleware
 app.use(express.static('public')); 
 
@@ -185,7 +184,7 @@ app.get("/posts/add", (req, res) => {
 })
 
 app.get("/posts/:value", (req, res) => {
-    blogData.getPostsById(req.params.value).then((data) => {
+    blogData.getPostById(req.params.value).then((data) => {
         return res.json({data});
     }).catch((err) => {
         return {"message": err.message};
@@ -275,7 +274,7 @@ app.get('/blog/:id', async (req, res) => {
     }
     try{
         // Obtain the post by "id"
-        viewData.post = await blogData.getPostsById(req.params.id);
+        viewData.post = await blogData.getPostById(req.params.id);
     }catch(err){
         viewData.message = "no results"; 
     }
