@@ -22,11 +22,11 @@ let Post = sequelize.define("Post", {
   title: Sequelize.STRING,
   postDate: Sequelize.DATE,
   featureImage: Sequelize.STRING,
-  published: Sequelize.BOOLEAN,
+  published: Sequelize.BOOLEAN
 });
 
 let Category = sequelize.define("Category", {
-  category: Sequelize.STRING,
+  category: Sequelize.STRING
 });
 
 Post.belongsTo(Category, { foreignKey: "category" });
@@ -46,7 +46,7 @@ const initialize = () => {
 
 const getAllPosts = () => {
   return new Promise((resolve, reject) => {
-    Post.findAll()
+    Post.findAll({})
       .then((data) => {
         resolve(data);
       })
@@ -74,11 +74,47 @@ const getPublishedPosts = () => {
   });
 };
 
+const getCategories = () => {
+    return new Promise((resolve, reject) => {
+      Category.findAll({}).then((data) => {
+          resolve(data);
+        }).catch((err) => {
+          reject("no results returned", err);
+        });
+    });
+  };
+
+  const addPost = (postData) => {
+    return new Promise((resolve, reject) => {
+      postData.published = postData.published ? true : false;
+      for (let key in postData) {
+        if (postData[key] == "") {
+          postData[key] = null;
+        }
+      }
+      postData.postDate = new Date();
+      Post.create({
+          body: postData.body, 
+          title: postData.title,
+          postDate: postData.postDate,
+          featureImage: postData.featureImage,
+          published: postData.published,
+          category: postData.category
+      }) 
+        .then(() => {
+          resolve("Post created");
+        })
+        .catch(() => {
+          reject("unable to create post");
+        });
+    });
+  };
+
 const getPostsByCategory = (category) => {
   return new Promise((resolve, reject) => {
     Post.findAll({
         where: {
-            categories: category
+            category: category
         }
     })
       .then((data) => {
@@ -116,7 +152,7 @@ const getPostById = (id) => {
         }
     })
       .then((data) => {
-        resolve(data);
+        resolve(data[0]);
       })
       .catch(() => {
         reject("no results returned");
@@ -124,24 +160,6 @@ const getPostById = (id) => {
   });
 };
 
-const addPost = (postData) => {
-  return new Promise((resolve, reject) => {
-    postData.published = postData.published ? true : false;
-    for (const key in postData) {
-      if (postData[key] == "") {
-        postData[key] = null;
-      }
-    }
-    postData.postDate = new Date();
-    Post.create(postData)
-      .then(() => {
-        resolve(postData);
-      })
-      .catch(() => {
-        reject("unable to create post");
-      });
-  });
-};
 
 const getPublishedPostsByCategory = (category) => {
   return new Promise((resolve, reject) => {
@@ -161,34 +179,25 @@ const getPublishedPostsByCategory = (category) => {
   });
 };
 
-const getCategories = () => {
-    return new Promise((resolve, reject) => {
-      Category.findAll().then((data) => {
-          resolve(data);
-        }).catch(() => {
-          reject("no results returned");
-        });
-    });
-  };
+
 
 const addCategory = (categoryData) => {
-  //categoryData.published = (categoryData.published) ? true : false;
-  //categoryData.title == "" ? categoryData.title = null : categoryData.title = categoryData.title;
-  //categoryData.postDate == "" ? categoryData.postDate = null : categoryData.postDate = categoryData.postDate;
-  //categoryData.featureImage == "" ? categoryData.featureImage = null : categoryData.featureImage = categoryData.featureImage;
   return new Promise((resolve, reject) => {
-    for (const key in categoryData) {
+    for (let key in categoryData) {
       if (categoryData[key] == "") {
         categoryData[key] = null;
       }
     }
+    console.log(categoryData);
     //categoryData.postDate = new Date();
-    Category.create(categoryData)
+    Category.create({
+        category: categoryData.category
+    }) 
       .then(() => {
-        resolve(categoryData);
+        resolve("Category created successfully");
       })
       .catch(() => {
-        reject("unable to create post");
+        reject("unable to create Category");
       });
   });
 };
@@ -197,7 +206,11 @@ const addCategory = (categoryData) => {
 
 const deleteCategoryById = (id) => {
   return new Promise((resolve, reject) => {
-    Category.destroy(id)
+    Category.destroy({
+        where:{
+            id: id
+        }
+    })
       .then(() => {
         resolve("successfully deleted data");
       })
@@ -209,7 +222,11 @@ const deleteCategoryById = (id) => {
 
 const deletePostById = (id) => {
   return new Promise((resolve, reject) => {
-    Post.destroy(id)
+    Post.destroy({
+        where: {
+            id: id
+        }
+    })
       .then(() => {
         resolve("successfully deleted data");
       })
