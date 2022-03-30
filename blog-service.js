@@ -38,7 +38,8 @@ const initialize = () => {
       .then(() => {
         resolve("successfully synced database");
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         reject("unable to sync the database");
       });
   });
@@ -50,7 +51,8 @@ const getAllPosts = () => {
       .then((data) => {
         resolve(data);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         reject("no results returned");
       });
   });
@@ -68,7 +70,8 @@ const getPublishedPosts = () => {
       .then((data) => {
         resolve(data);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         resolve("no results returned");
       });
   });
@@ -79,6 +82,7 @@ const getCategories = () => {
       Category.findAll({}).then((data) => {
           resolve(data);
         }).catch((err) => {
+          console.log(err);
           reject("no results returned", err);
         });
     });
@@ -196,7 +200,8 @@ const addCategory = (categoryData) => {
       .then(() => {
         resolve("Category created successfully");
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         reject("unable to create Category");
       });
   });
